@@ -1,0 +1,152 @@
+
+name: WDL Workflow Test Run
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
+    types: [opened, reopened, synchronize]
+    paths:
+      - '**.wdl'
+      - '.github/workflows/testrun.yml'
+
+jobs:
+  test-ww-star:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install miniWDL
+        run: pip install miniwdl
+
+      - name: Download Cromwell
+        run: |
+          wget -q https://github.com/broadinstitute/cromwell/releases/download/86/cromwell-86.jar
+          chmod +x cromwell-86.jar
+
+      - 
+        name: Set Up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - 
+        name: Install cargo-binstall
+        run: curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+      - 
+        name: Install Sprocket
+        run: cargo-binstall sprocket --version 0.12.2
+      - 
+        name: Create Test Directory
+        run: mkdir -p test_data
+      - 
+        name: Download Human Chromosome 22 Reference
+        working-directory: test_data
+        run: |
+          # Download chromosome 22 fasta
+          wget -q http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr22.fa.gz
+          gunzip chr22.fa.gz
+      - 
+        name: Download Human Chromosome 22 GTF
+        working-directory: test_data
+        run: |
+          # Download GTF file
+          wget http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.ncbiRefSeq.gtf.gz
+          gunzip hg38.ncbiRefSeq.gtf.gz
+          # Extract only chromosome 22 annotations
+          grep "^chr22[[:space:]]" hg38.ncbiRefSeq.gtf > chr22.gtf
+          rm hg38.ncbiRefSeq.gtf
+      - 
+        name: Download SRA Toolkit
+        run: |
+          wget https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/current/sratoolkit.current-ubuntu64.tar.gz
+          tar -xzf sratoolkit.current-ubuntu64.tar.gz
+          echo "$(pwd)/sratoolkit.*/bin" >> $GITHUB_PATH
+      - 
+        name: Configure SRA Toolkit and Fetch Test Sample
+        working-directory: test_data
+        run: |
+          mkdir -p $HOME/.ncbi
+          echo '/repository/user/main/public/root = "$(pwd)/sra"' > $HOME/.ncbi/user-settings.mkfg
+          
+          # Download a small test RNA-seq sample (SRR13008264 - mouse RNA-seq, ~100MB)
+          prefetch SRR13008264
+          fasterq-dump --split-files SRR13008264
+          gzip SRR13008264_1.fastq SRR13008264_2.fastq
+      - 
+        name: Create Test Input JSON
+        working-directory: test_data
+        run: |
+          cat > test-inputs.json << EOL
+          {
+            "star_example.samples": [
+              {
+                "name": "SRR13008264",
+                "r1": "$(pwd)/SRR13008264_1.fastq.gz",
+                "r2": "$(pwd)/SRR13008264_2.fastq.gz"
+              }
+            ],
+            "star_example.reference_genome": {
+              "name": "chr22",
+              "fasta": "$(pwd)/chr22.fa",
+              "gtf": "$(pwd)/chr22.gtf"
+            }
+          }
+          EOL
+          cat test-inputs.json
+      - 
+        name: Create Options JSON
+        working-directory: test_data
+        run: |
+          cat > test-options.json << EOL
+          {
+            "final_workflow_outputs_dir": "$(pwd)/outputs",
+            "use_relative_output_paths": true
+          }
+          EOL
+
+      - name: Run Workflow with Cromwell
+        working-directory: test_data
+        run: |
+          mkdir -p cromwell_outputs
+          java -jar ../cromwell-86.jar run ../ww-star.wdl -i test-inputs.json -o test-options.json
+          echo "Cromwell execution completed"
+
+      - name: Run Workflow with miniWDL
+        working-directory: test_data
+        run: |
+          mkdir -p miniwdl_outputs
+          miniwdl run ../ww-star.wdl -i test-inputs.json --dir miniwdl_outputs
+          echo "miniWDL execution completed"
+
+      - name: Run Workflow with Sprocket
+        working-directory: test_data
+        run: |
+          mkdir -p sprocket_outputs
+          sprocket run ../ww-star.wdl test-inputs.json --outdir sprocket_outputs
+          echo "Sprocket execution completed"
+
+      - name: Verify Outputs
+        working-directory: test_data
+        run: |
+          # Check that each runner produced expected outputs
+          echo "Checking Cromwell outputs..."
+          find cromwell_outputs -type f -name "*bam" | wc -l
+          
+          echo "Checking miniWDL outputs..."
+          find miniwdl_outputs -type f -name "*bam" | wc -l
+          
+          echo "Checking Sprocket outputs..."
+          find sprocket_outputs -type f -name "*bam" | wc -l
