@@ -1,3 +1,7 @@
+## WILDS WDL for performing RNA-seq alignment using STAR's two-pass methodology. 
+## Designed to be a modular component within the WILDS ecosystem that can be used 
+## independently or integrated with other WILDS workflows.
+
 version 1.0
 
 struct SampleInfo {
