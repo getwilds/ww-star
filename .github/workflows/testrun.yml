@@ -69,18 +69,21 @@ jobs:
           grep "^chr22[[:space:]]" hg38.ncbiRefSeq.gtf > chr22.gtf
           rm hg38.ncbiRefSeq.gtf
       - 
-        name: Download SRA Toolkit
-        run: |
-          wget https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/current/sratoolkit.current-ubuntu64.tar.gz
-          tar -xzf sratoolkit.current-ubuntu64.tar.gz
-          echo "$(pwd)/sratoolkit.*/bin" >> $GITHUB_PATH
-      - 
-        name: Configure SRA Toolkit and Fetch Test Sample
+        name: Fetch Test Sample using SRA-toolkit Docker
         working-directory: test_data
         run: |
-          # Download a small test RNA-seq sample (SRR13008264 - mouse RNA-seq, ~100MB)
+          # Pull the Docker image
+          docker pull getwilds/sra-toolkit:3.1.1
+          
+          # Run fasterq-dump in the container, mounting the current directory
+          docker run --rm -v $(pwd):/data -w /data getwilds/sra-toolkit:3.1.1 \
           fasterq-dump --split-files SRR13008264
+          
+          # Compress the resulting fastq files
           gzip SRR13008264_1.fastq SRR13008264_2.fastq
+          
+          # Check the files
+          ls -la SRR13008264_*.fastq.gz
       - 
         name: Create Test Input JSON
         working-directory: test_data
