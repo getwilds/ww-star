@@ -78,11 +78,7 @@ jobs:
         name: Configure SRA Toolkit and Fetch Test Sample
         working-directory: test_data
         run: |
-          mkdir -p $HOME/.ncbi
-          echo '/repository/user/main/public/root = "$(pwd)/sra"' > $HOME/.ncbi/user-settings.mkfg
-          
           # Download a small test RNA-seq sample (SRR13008264 - mouse RNA-seq, ~100MB)
-          prefetch SRR13008264
           fasterq-dump --split-files SRR13008264
           gzip SRR13008264_1.fastq SRR13008264_2.fastq
       - 
