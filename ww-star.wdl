@@ -1,5 +1,5 @@
-## WILDS WDL for performing RNA-seq alignment using STAR's two-pass methodology. 
-## Designed to be a modular component within the WILDS ecosystem that can be used 
+## WILDS WDL for performing RNA-seq alignment using STAR's two-pass methodology.
+## Designed to be a modular component within the WILDS ecosystem that can be used
 ## independently or integrated with other WILDS workflows.
 
 version 1.0
@@ -29,7 +29,7 @@ workflow star_example {
         star_log_final: "Final log files from STAR alignment for each sample",
         star_log_progress: "Progress log files from STAR alignment for each sample",
         star_log: "Main log files from STAR alignment for each sample",
-        star_sj: "Splice junction files from STAR alignment for each sample",
+        star_sj: "Splice junction files from STAR alignment for each sample"
     }
   }
 
