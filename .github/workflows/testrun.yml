@@ -49,18 +49,13 @@ jobs:
         name: Install Sprocket
         run: cargo-binstall sprocket --version 0.12.2
       - 
-        name: Create Test Directory
-        run: mkdir -p test_data
-      - 
         name: Download Human Chromosome 22 Reference
-        working-directory: test_data
         run: |
           # Download chromosome 22 fasta
           wget -q http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr22.fa.gz
           gunzip chr22.fa.gz
       - 
         name: Download Human Chromosome 22 GTF
-        working-directory: test_data
         run: |
           # Download GTF file
           wget -q http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.ncbiRefSeq.gtf.gz
@@ -79,14 +74,12 @@ jobs:
           export PATH="$PWD/sratoolkit.3.1.1-ubuntu64/bin:$PATH"
       - 
         name: Configure SRA Toolkit and Fetch Test Sample
-        working-directory: test_data
         run: |
           # Download a small test RNA-seq sample (SRR13008264 - mouse RNA-seq, ~100MB)
           fasterq-dump --split-files SRR13008264
           gzip SRR13008264_1.fastq SRR13008264_2.fastq
       - 
         name: Create Test Input JSON
-        working-directory: test_data
         run: |
           cat > test-inputs.json << EOL
           {
@@ -108,7 +101,6 @@ jobs:
           cat test-inputs.json
       - 
         name: Create Options JSON
-        working-directory: test_data
         run: |
           cat > test-options.json << EOL
           {
@@ -118,28 +110,24 @@ jobs:
           EOL
 
     #   - name: Run Workflow with Cromwell
-    #     working-directory: test_data
     #     run: |
     #       mkdir -p cromwell_outputs
-    #       java -jar ../cromwell-86.jar run ../ww-star.wdl -i test-inputs.json -o test-options.json
+    #       java -jar cromwell-86.jar run ww-star.wdl -i test-inputs.json -o test-options.json
     #       echo "Cromwell execution completed"
 
     #   - name: Run Workflow with miniWDL
-    #     working-directory: test_data
     #     run: |
     #       mkdir -p miniwdl_outputs
-    #       miniwdl run ../ww-star.wdl -i test-inputs.json --dir miniwdl_outputs --verbose
+    #       miniwdl run ww-star.wdl -i test-inputs.json --dir miniwdl_outputs --verbose
     #       echo "miniWDL execution completed"
 
       - name: Run Workflow with Sprocket
-        working-directory: test_data
         run: |
           mkdir -p sprocket_outputs
-          sprocket run ../ww-star.wdl test-inputs.json --outdir sprocket_outputs
+          sprocket run --output sprocket_outputs ww-star.wdl test-inputs.json
           echo "Sprocket execution completed"
 
       - name: Verify Outputs
-        working-directory: test_data
         run: |
           # Check that each runner produced expected outputs
           # echo "Checking Cromwell outputs..."
