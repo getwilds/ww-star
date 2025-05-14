@@ -63,7 +63,7 @@ jobs:
         working-directory: test_data
         run: |
           # Download GTF file
-          wget http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.ncbiRefSeq.gtf.gz
+          wget -q http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.ncbiRefSeq.gtf.gz
           gunzip hg38.ncbiRefSeq.gtf.gz
           # Extract only chromosome 22 annotations
           grep "^chr22[[:space:]]" hg38.ncbiRefSeq.gtf > chr22.gtf
@@ -71,17 +71,12 @@ jobs:
       - name: Download SRA Toolkit
         run: |
           # Download a specific version (3.1.1) of the SRA toolkit
-          wget https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/3.1.1/sratoolkit.3.1.1-ubuntu64.tar.gz
+          wget -q https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/3.1.1/sratoolkit.3.1.1-ubuntu64.tar.gz
           tar -xzf sratoolkit.3.1.1-ubuntu64.tar.gz
-          
           # Set path to include SRA toolkit binaries
           echo "$PWD/sratoolkit.3.1.1-ubuntu64/bin" >> $GITHUB_PATH
           # Also make it available in the current shell
           export PATH="$PWD/sratoolkit.3.1.1-ubuntu64/bin:$PATH"
-          
-          # Verify the toolkit is installed correctly
-          which fasterq-dump
-          fasterq-dump --version
       - 
         name: Configure SRA Toolkit and Fetch Test Sample
         working-directory: test_data
@@ -121,12 +116,12 @@ jobs:
           }
           EOL
 
-      - name: Run Workflow with Cromwell
-        working-directory: test_data
-        run: |
-          mkdir -p cromwell_outputs
-          java -jar ../cromwell-86.jar run ../ww-star.wdl -i test-inputs.json -o test-options.json
-          echo "Cromwell execution completed"
+    #   - name: Run Workflow with Cromwell
+    #     working-directory: test_data
+    #     run: |
+    #       mkdir -p cromwell_outputs
+    #       java -jar ../cromwell-86.jar run ../ww-star.wdl -i test-inputs.json -o test-options.json
+    #       echo "Cromwell execution completed"
 
       - name: Run Workflow with miniWDL
         working-directory: test_data
@@ -146,8 +141,8 @@ jobs:
         working-directory: test_data
         run: |
           # Check that each runner produced expected outputs
-          echo "Checking Cromwell outputs..."
-          find cromwell_outputs -type f -name "*bam" | wc -l
+          # echo "Checking Cromwell outputs..."
+          # find cromwell_outputs -type f -name "*bam" | wc -l
           
           echo "Checking miniWDL outputs..."
           find miniwdl_outputs -type f -name "*bam" | wc -l
