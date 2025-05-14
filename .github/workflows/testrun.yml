@@ -127,7 +127,7 @@ jobs:
         working-directory: test_data
         run: |
           mkdir -p miniwdl_outputs
-          miniwdl run ../ww-star.wdl -i test-inputs.json --dir miniwdl_outputs
+          miniwdl run ../ww-star.wdl -i test-inputs.json --dir miniwdl_outputs --verbose
           echo "miniWDL execution completed"
 
       - name: Run Workflow with Sprocket
