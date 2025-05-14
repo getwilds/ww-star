@@ -92,7 +92,7 @@ task build_star_index {
     File reference_fasta
     File reference_gtf
     Int sjdb_overhang = 100
-    Int genome_sa_index_nbases = 14
+    Int genome_sa_index_nbases = 11
     Int memory_gb = 64
     Int cpu_cores = 8
   }
