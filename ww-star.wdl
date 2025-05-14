@@ -36,23 +36,27 @@ workflow star_example {
   parameter_meta {
     samples: "List of sample objects, each containing name, r1/r2 fastq files, and condition information"
     reference_genome: "Reference genome object containing name, fasta, and gtf files"
+    cpus: "Number of CPU cores allocated for each task in the workflow"
   }
 
   input {
     Array[SampleInfo] samples
     RefGenome reference_genome
+    Int cpus = 8
   }
 
   call build_star_index { input:
       reference_fasta = reference_genome.fasta,
-      reference_gtf = reference_genome.gtf
+      reference_gtf = reference_genome.gtf,
+      cpu_cores = cpus
   }
 
   scatter (sample in samples) {
     call star_align_two_pass { input:
         sample_data = sample,
         star_genome_tar = build_star_index.star_index_tar,
-        ref_genome_name = reference_genome.name
+        ref_genome_name = reference_genome.name,
+        cpu_cores = cpus
     }
   }
 
