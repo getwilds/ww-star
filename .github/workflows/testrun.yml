@@ -93,15 +93,16 @@ jobs:
             "star_example.samples": [
               {
                 "name": "SRR13008264",
-                "r1": "$(pwd)/SRR13008264_1.fastq.gz",
-                "r2": "$(pwd)/SRR13008264_2.fastq.gz"
+                "r1": "SRR13008264_1.fastq.gz",
+                "r2": "SRR13008264_2.fastq.gz"
               }
             ],
             "star_example.reference_genome": {
               "name": "chr22",
-              "fasta": "$(pwd)/chr22.fa",
-              "gtf": "$(pwd)/chr22.gtf"
-            }
+              "fasta": "chr22.fa",
+              "gtf": "chr22.gtf"
+            },
+            "star_example.cpus": 1
           }
           EOL
           cat test-inputs.json
@@ -111,7 +112,7 @@ jobs:
         run: |
           cat > test-options.json << EOL
           {
-            "final_workflow_outputs_dir": "$(pwd)/outputs",
+            "final_workflow_outputs_dir": "cromwell_outputs",
             "use_relative_output_paths": true
           }
           EOL
