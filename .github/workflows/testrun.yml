@@ -78,54 +78,53 @@ jobs:
       #     # Download a small test RNA-seq sample (SRR13008264 - mouse RNA-seq, ~100MB)
       #     fasterq-dump --split-files SRR13008264
       #     gzip SRR13008264_1.fastq SRR13008264_2.fastq
-      # - 
-      #   name: Create Test Input JSON
-      #   run: |
-      #     cat > test-inputs.json << EOL
-      #     {
-      #       "star_example.samples": [
-      #         {
-      #           "name": "SRR13008264",
-      #           "r1": "SRR13008264_1.fastq.gz",
-      #           "r2": "SRR13008264_2.fastq.gz"
-      #         }
-      #       ],
-      #       "star_example.reference_genome": {
-      #         "name": "chr22",
-      #         "fasta": "chr22.fa",
-      #         "gtf": "chr22.gtf"
-      #       },
-      #       "star_example.cpus": 1
-      #     }
-      #     EOL
-      #     cat test-inputs.json
-      # - 
-      #   name: Create Options JSON
-      #   run: |
-      #     cat > test-options.json << EOL
-      #     {
-      #       "final_workflow_outputs_dir": "cromwell_outputs",
-      #       "use_relative_output_paths": true
-      #     }
-      #     EOL
+      - 
+        name: Create Test Input JSON
+        run: |
+          cat > test-inputs.json << EOL
+          {
+            "star_example.samples": [
+              {
+                "name": "SRR13008264",
+                "r1": "test/SRR13008264_1.fastq.gz",
+                "r2": "test/SRR13008264_2.fastq.gz"
+              }
+            ],
+            "star_example.reference_genome": {
+              "name": "chr22",
+              "fasta": "${{ github.workspace }}/chr22.fa",
+              "gtf": "${{ github.workspace }}/chr22.gtf"
+            },
+            "star_example.cpus": 2,
+            "star_example.memory_gb": 8
+          }
+          EOL
+          cat test-inputs.json
+      - 
+        name: Create Options JSON
+        run: |
+          cat > test-options.json << EOL
+          {
+            "final_workflow_outputs_dir": "cromwell_outputs",
+            "use_relative_output_paths": true
+          }
+          EOL
 
       - name: Run Workflow with Cromwell
         run: |
           mkdir -p cromwell_outputs
-          java -jar cromwell-86.jar run ww-star.wdl -i ww-star-inputs.json -o ww-star-options.json
+          java -jar cromwell-86.jar run ww-star.wdl -i test-inputs.json -o test-options.json
           echo "Cromwell execution completed"
 
       - name: Run Workflow with miniWDL
         run: |
           mkdir -p miniwdl_outputs
-          miniwdl run ww-star.wdl -i ww-star-inputs.json --dir miniwdl_outputs --verbose
+          miniwdl run ww-star.wdl -i test-inputs.json --dir miniwdl_outputs --verbose
           echo "miniWDL execution completed"
 
       - name: Run Workflow with Sprocket
         run: |
-          # Sprocket needs absolute paths in the inputs JSON
-          sed -i "s|test/|${{ github.workspace }}/test/|g" ww-star-inputs.json
-          sprocket run --output sprocket_outputs ww-star.wdl ww-star-inputs.json
+          sprocket run --output sprocket_outputs ww-star.wdl test-inputs.json
           echo "Sprocket execution completed"
 
       - name: Verify Outputs
@@ -137,5 +136,5 @@ jobs:
           echo "Checking miniWDL outputs..."
           find miniwdl_outputs -type f -name "*bam" | wc -l
           
-          # echo "Checking Sprocket outputs..."
-          # find sprocket_outputs -type f -name "*bam" | wc -l
+          echo "Checking Sprocket outputs..."
+          find sprocket_outputs -type f -name "*bam" | wc -l
