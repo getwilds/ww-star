@@ -36,18 +36,18 @@ jobs:
           wget -q https://github.com/broadinstitute/cromwell/releases/download/86/cromwell-86.jar
           chmod +x cromwell-86.jar
 
-      # - 
-      #   name: Set Up Rust
-      #   uses: actions-rs/toolchain@v1
-      #   with:
-      #     toolchain: stable
-      #     override: true
-      # - 
-      #   name: Install cargo-binstall
-      #   run: curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-      # - 
-      #   name: Install Sprocket
-      #   run: cargo-binstall sprocket --version 0.12.2
+      - 
+        name: Set Up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - 
+        name: Install cargo-binstall
+        run: curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+      - 
+        name: Install Sprocket
+        run: cargo-binstall sprocket --version 0.12.2
       # - 
       #   name: Download Human Chromosome 22 Reference
       #   run: |
@@ -121,10 +121,12 @@ jobs:
           miniwdl run ww-star.wdl -i ww-star-inputs.json --dir miniwdl_outputs --verbose
           echo "miniWDL execution completed"
 
-      # - name: Run Workflow with Sprocket
-      #   run: |
-      #     sprocket run --output sprocket_outputs ww-star.wdl ww-star-inputs.json
-      #     echo "Sprocket execution completed"
+      - name: Run Workflow with Sprocket
+        run: |
+          # Sprocket needs absolute paths in the inputs JSON
+          sed -i "s|test/|${{ github.workspace }}/test/|g" ww-star-inputs.json
+          sprocket run --output sprocket_outputs ww-star.wdl ww-star-inputs.json
+          echo "Sprocket execution completed"
 
       - name: Verify Outputs
         run: |
