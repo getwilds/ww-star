@@ -14,28 +14,28 @@ jobs:
   test-ww-star:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - 
+        name: Checkout
         uses: actions/checkout@v4
-
-      - name: Set up Java
+      - 
+        name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-
-      - name: Set up Python
+      - 
+        name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Install miniWDL
+      - 
+        name: Install miniWDL
         run: pip install miniwdl
-
-      - name: Download Cromwell
+      - 
+        name: Download Cromwell
         run: |
           wget -q https://github.com/broadinstitute/cromwell/releases/download/86/cromwell-86.jar
           chmod +x cromwell-86.jar
-
       - 
         name: Set Up Rust
         uses: actions-rs/toolchain@v1
@@ -109,25 +109,25 @@ jobs:
             "use_relative_output_paths": true
           }
           EOL
-
-      - name: Run Workflow with Cromwell
+      - 
+        name: Run Workflow with Cromwell
         run: |
           mkdir -p cromwell_outputs
           java -jar cromwell-86.jar run ww-star.wdl -i test-inputs.json -o test-options.json
           echo "Cromwell execution completed"
-
-      - name: Run Workflow with miniWDL
+      - 
+        name: Run Workflow with miniWDL
         run: |
           mkdir -p miniwdl_outputs
           miniwdl run ww-star.wdl -i test-inputs.json --dir miniwdl_outputs --verbose
           echo "miniWDL execution completed"
-
-      - name: Run Workflow with Sprocket
+      - 
+        name: Run Workflow with Sprocket
         run: |
-          sprocket run --output sprocket_outputs ww-star.wdl test-inputs.json
+          sprocket run --output sprocket_outputs ww-star.wdl test-inputs.json --verbose
           echo "Sprocket execution completed"
-
-      - name: Verify Outputs
+      - 
+        name: Verify Outputs
         run: |
           # Check that each runner produced expected outputs
           echo "Checking Cromwell outputs..."
