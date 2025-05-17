@@ -128,7 +128,7 @@ jobs:
 
       - name: Verify Outputs
         run: |
-          Check that each runner produced expected outputs
+          # Check that each runner produced expected outputs
           echo "Checking Cromwell outputs..."
           find cromwell_outputs -type f -name "*bam" | wc -l
           
