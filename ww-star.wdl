@@ -95,7 +95,7 @@ task build_star_index {
     File reference_fasta
     File reference_gtf
     Int sjdb_overhang = 100
-    Int genome_sa_index_nbases = 14
+    Int genome_sa_index_nbases = 11
     Int memory_gb = 64
     Int cpu_cores = 8
   }
@@ -115,7 +115,7 @@ task build_star_index {
       --sjdbOverhang ~{sjdb_overhang} \
       --genomeSAindexNbases ~{genome_sa_index_nbases}
 
-    tar -czf star_index.tar.gz star_index/
+    tar -czf star_index.tar.gz star_index/*
   >>>
 
   output {
@@ -184,7 +184,7 @@ task star_align_two_pass {
       --quantMode GeneCounts \
       --quantTranscriptomeBAMcompression 5 
 
-    rm -r star_index _STARtmp
+    rm -r star_index
 
     mv Aligned.sortedByCoord.out.bam \
       "~{sample_data.name}.~{ref_genome_name}.Aligned.sortedByCoord.out.bam"
