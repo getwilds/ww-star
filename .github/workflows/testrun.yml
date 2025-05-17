@@ -48,21 +48,21 @@ jobs:
       - 
         name: Install Sprocket
         run: cargo-binstall sprocket --version 0.12.2
-      # - 
-      #   name: Download Human Chromosome 22 Reference
-      #   run: |
-      #     # Download chromosome 22 fasta
-      #     wget -q http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr22.fa.gz
-      #     gunzip chr22.fa.gz
-      # - 
-      #   name: Download Human Chromosome 22 GTF
-      #   run: |
-      #     # Download GTF file
-      #     wget -q http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.ncbiRefSeq.gtf.gz
-      #     gunzip hg38.ncbiRefSeq.gtf.gz
-      #     # Extract only chromosome 22 annotations
-      #     grep "^chr22[[:space:]]" hg38.ncbiRefSeq.gtf > chr22.gtf
-      #     rm hg38.ncbiRefSeq.gtf
+      - 
+        name: Download Human Chromosome 22 Reference
+        run: |
+          # Download chromosome 22 fasta
+          wget -q http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr22.fa.gz
+          gunzip chr22.fa.gz
+      - 
+        name: Download Human Chromosome 22 GTF
+        run: |
+          # Download GTF file
+          wget -q http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.ncbiRefSeq.gtf.gz
+          gunzip hg38.ncbiRefSeq.gtf.gz
+          # Extract only chromosome 22 annotations
+          grep "^chr22[[:space:]]" hg38.ncbiRefSeq.gtf > chr22.gtf
+          rm hg38.ncbiRefSeq.gtf
       # - name: Download SRA Toolkit
       #   run: |
       #     # Download a specific version (3.1.1) of the SRA toolkit
