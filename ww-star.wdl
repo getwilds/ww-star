@@ -37,6 +37,7 @@ workflow star_example {
     samples: "List of sample objects, each containing name, r1/r2 fastq files, and condition information"
     reference_genome: "Reference genome object containing name, fasta, and gtf files"
     cpus: "Number of CPU cores allocated for each task in the workflow"
+    memory_gb: "Memory allocated for each task in the workflow in GB"
   }
 
   input {
