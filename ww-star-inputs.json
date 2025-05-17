@@ -10,5 +10,6 @@
     "name": "chr22",
     "fasta": "test/chr22.fa",
     "gtf": "test/chr22.gtf"
-  }
+  },
+  "star_example.cpus": 2
 }
