@@ -17,24 +17,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+      # - name: Set up Java
+      #   uses: actions/setup-java@v4
+      #   with:
+      #     distribution: 'temurin'
+      #     java-version: '17'
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+      # - name: Set up Python
+      #   uses: actions/setup-python@v5
+      #   with:
+      #     python-version: '3.11'
 
-      - name: Install miniWDL
-        run: pip install miniwdl
+      # - name: Install miniWDL
+      #   run: pip install miniwdl
 
-      - name: Download Cromwell
-        run: |
-          wget -q https://github.com/broadinstitute/cromwell/releases/download/86/cromwell-86.jar
-          chmod +x cromwell-86.jar
+      # - name: Download Cromwell
+      #   run: |
+      #     wget -q https://github.com/broadinstitute/cromwell/releases/download/86/cromwell-86.jar
+      #     chmod +x cromwell-86.jar
 
       - 
         name: Set Up Rust
@@ -48,66 +48,66 @@ jobs:
       - 
         name: Install Sprocket
         run: cargo-binstall sprocket --version 0.12.2
-      - 
-        name: Download Human Chromosome 22 Reference
-        run: |
-          # Download chromosome 22 fasta
-          wget -q http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr22.fa.gz
-          gunzip chr22.fa.gz
-      - 
-        name: Download Human Chromosome 22 GTF
-        run: |
-          # Download GTF file
-          wget -q http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.ncbiRefSeq.gtf.gz
-          gunzip hg38.ncbiRefSeq.gtf.gz
-          # Extract only chromosome 22 annotations
-          grep "^chr22[[:space:]]" hg38.ncbiRefSeq.gtf > chr22.gtf
-          rm hg38.ncbiRefSeq.gtf
-      - name: Download SRA Toolkit
-        run: |
-          # Download a specific version (3.1.1) of the SRA toolkit
-          wget -q https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/3.1.1/sratoolkit.3.1.1-ubuntu64.tar.gz
-          tar -xzf sratoolkit.3.1.1-ubuntu64.tar.gz
-          # Set path to include SRA toolkit binaries
-          echo "$PWD/sratoolkit.3.1.1-ubuntu64/bin" >> $GITHUB_PATH
-          # Also make it available in the current shell
-          export PATH="$PWD/sratoolkit.3.1.1-ubuntu64/bin:$PATH"
-      - 
-        name: Configure SRA Toolkit and Fetch Test Sample
-        run: |
-          # Download a small test RNA-seq sample (SRR13008264 - mouse RNA-seq, ~100MB)
-          fasterq-dump --split-files SRR13008264
-          gzip SRR13008264_1.fastq SRR13008264_2.fastq
-      - 
-        name: Create Test Input JSON
-        run: |
-          cat > test-inputs.json << EOL
-          {
-            "star_example.samples": [
-              {
-                "name": "SRR13008264",
-                "r1": "SRR13008264_1.fastq.gz",
-                "r2": "SRR13008264_2.fastq.gz"
-              }
-            ],
-            "star_example.reference_genome": {
-              "name": "chr22",
-              "fasta": "chr22.fa",
-              "gtf": "chr22.gtf"
-            },
-            "star_example.cpus": 1
-          }
-          EOL
-          cat test-inputs.json
-      - 
-        name: Create Options JSON
-        run: |
-          cat > test-options.json << EOL
-          {
-            "final_workflow_outputs_dir": "cromwell_outputs",
-            "use_relative_output_paths": true
-          }
-          EOL
+      # - 
+      #   name: Download Human Chromosome 22 Reference
+      #   run: |
+      #     # Download chromosome 22 fasta
+      #     wget -q http://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr22.fa.gz
+      #     gunzip chr22.fa.gz
+      # - 
+      #   name: Download Human Chromosome 22 GTF
+      #   run: |
+      #     # Download GTF file
+      #     wget -q http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.ncbiRefSeq.gtf.gz
+      #     gunzip hg38.ncbiRefSeq.gtf.gz
+      #     # Extract only chromosome 22 annotations
+      #     grep "^chr22[[:space:]]" hg38.ncbiRefSeq.gtf > chr22.gtf
+      #     rm hg38.ncbiRefSeq.gtf
+      # - name: Download SRA Toolkit
+      #   run: |
+      #     # Download a specific version (3.1.1) of the SRA toolkit
+      #     wget -q https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/3.1.1/sratoolkit.3.1.1-ubuntu64.tar.gz
+      #     tar -xzf sratoolkit.3.1.1-ubuntu64.tar.gz
+      #     # Set path to include SRA toolkit binaries
+      #     echo "$PWD/sratoolkit.3.1.1-ubuntu64/bin" >> $GITHUB_PATH
+      #     # Also make it available in the current shell
+      #     export PATH="$PWD/sratoolkit.3.1.1-ubuntu64/bin:$PATH"
+      # - 
+      #   name: Configure SRA Toolkit and Fetch Test Sample
+      #   run: |
+      #     # Download a small test RNA-seq sample (SRR13008264 - mouse RNA-seq, ~100MB)
+      #     fasterq-dump --split-files SRR13008264
+      #     gzip SRR13008264_1.fastq SRR13008264_2.fastq
+      # - 
+      #   name: Create Test Input JSON
+      #   run: |
+      #     cat > test-inputs.json << EOL
+      #     {
+      #       "star_example.samples": [
+      #         {
+      #           "name": "SRR13008264",
+      #           "r1": "SRR13008264_1.fastq.gz",
+      #           "r2": "SRR13008264_2.fastq.gz"
+      #         }
+      #       ],
+      #       "star_example.reference_genome": {
+      #         "name": "chr22",
+      #         "fasta": "chr22.fa",
+      #         "gtf": "chr22.gtf"
+      #       },
+      #       "star_example.cpus": 1
+      #     }
+      #     EOL
+      #     cat test-inputs.json
+      # - 
+      #   name: Create Options JSON
+      #   run: |
+      #     cat > test-options.json << EOL
+      #     {
+      #       "final_workflow_outputs_dir": "cromwell_outputs",
+      #       "use_relative_output_paths": true
+      #     }
+      #     EOL
 
     #   - name: Run Workflow with Cromwell
     #     run: |
@@ -123,7 +123,7 @@ jobs:
 
       - name: Run Workflow with Sprocket
         run: |
-          sprocket run --output sprocket_outputs ww-star.wdl test-inputs.json
+          sprocket run --output sprocket_outputs ww-star.wdl test/test-inputs.json
           echo "Sprocket execution completed"
 
       - name: Verify Outputs
@@ -132,8 +132,8 @@ jobs:
           # echo "Checking Cromwell outputs..."
           # find cromwell_outputs -type f -name "*bam" | wc -l
           
-          echo "Checking miniWDL outputs..."
-          find miniwdl_outputs -type f -name "*bam" | wc -l
+          # echo "Checking miniWDL outputs..."
+          # find miniwdl_outputs -type f -name "*bam" | wc -l
           
           echo "Checking Sprocket outputs..."
           find sprocket_outputs -type f -name "*bam" | wc -l
