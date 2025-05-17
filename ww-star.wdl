@@ -43,11 +43,13 @@ workflow star_example {
     Array[SampleInfo] samples
     RefGenome reference_genome
     Int cpus = 8
+    Int memory_gb = 64
   }
 
   call build_star_index { input:
       reference_fasta = reference_genome.fasta,
       reference_gtf = reference_genome.gtf,
+      memory_gb = memory_gb,
       cpu_cores = cpus
   }
 
@@ -56,6 +58,7 @@ workflow star_example {
         sample_data = sample,
         star_genome_tar = build_star_index.star_index_tar,
         ref_genome_name = reference_genome.name,
+        memory_gb = memory_gb,
         cpu_cores = cpus
     }
   }
@@ -92,8 +95,8 @@ task build_star_index {
     File reference_fasta
     File reference_gtf
     Int sjdb_overhang = 100
-    Int genome_sa_index_nbases = 11
-    Int memory_gb = 8
+    Int genome_sa_index_nbases = 14
+    Int memory_gb = 64
     Int cpu_cores = 8
   }
 
@@ -156,7 +159,7 @@ task star_align_two_pass {
     SampleInfo sample_data
     String ref_genome_name
     Int sjdb_overhang = 100
-    Int memory_gb = 8
+    Int memory_gb = 62
     Int cpu_cores = 8
     Int star_threads = 6
   }
