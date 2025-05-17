@@ -36,6 +36,8 @@ workflow star_example {
   parameter_meta {
     samples: "List of sample objects, each containing name, r1/r2 fastq files, and condition information"
     reference_genome: "Reference genome object containing name, fasta, and gtf files"
+    sjdb_overhang: "Length of the genomic sequence around the annotated junction to be used in constructing the splice junctions database"
+    genome_sa_index_nbases: "Length (bases) of the SA pre-indexing string, typically between 10-15 (scales with genome size)"
     cpus: "Number of CPU cores allocated for each task in the workflow"
     memory_gb: "Memory allocated for each task in the workflow in GB"
   }
@@ -43,6 +45,8 @@ workflow star_example {
   input {
     Array[SampleInfo] samples
     RefGenome reference_genome
+    Int sjdb_overhang = 100
+    Int genome_sa_index_nbases = 14
     Int cpus = 8
     Int memory_gb = 64
   }
@@ -50,6 +54,8 @@ workflow star_example {
   call build_star_index { input:
       reference_fasta = reference_genome.fasta,
       reference_gtf = reference_genome.gtf,
+      sjdb_overhang = sjdb_overhang,
+      genome_sa_index_nbases = genome_sa_index_nbases,
       memory_gb = memory_gb,
       cpu_cores = cpus
   }
@@ -59,6 +65,7 @@ workflow star_example {
         sample_data = sample,
         star_genome_tar = build_star_index.star_index_tar,
         ref_genome_name = reference_genome.name,
+        sjdb_overhang = sjdb_overhang,
         memory_gb = memory_gb,
         cpu_cores = cpus
     }
@@ -96,7 +103,7 @@ task build_star_index {
     File reference_fasta
     File reference_gtf
     Int sjdb_overhang = 100
-    Int genome_sa_index_nbases = 11
+    Int genome_sa_index_nbases = 14
     Int memory_gb = 64
     Int cpu_cores = 8
   }

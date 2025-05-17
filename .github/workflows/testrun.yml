@@ -95,6 +95,7 @@ jobs:
               "fasta": "${{ github.workspace }}/chr22.fa",
               "gtf": "${{ github.workspace }}/chr22.gtf"
             },
+            "star_example.genome_sa_index_nbases": 11,
             "star_example.cpus": 2,
             "star_example.memory_gb": 8
           }
