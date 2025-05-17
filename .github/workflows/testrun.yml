@@ -123,7 +123,7 @@ jobs:
 
       - name: Run Workflow with Sprocket
         run: |
-          sprocket run --output sprocket_outputs ww-star.wdl test/test-inputs.json
+          sprocket run --output sprocket_outputs ww-star.wdl ww-star-inputs.json
           echo "Sprocket execution completed"
 
       - name: Verify Outputs
