@@ -63,21 +63,21 @@ jobs:
           # Extract only chromosome 22 annotations
           grep "^chr22[[:space:]]" hg38.ncbiRefSeq.gtf > chr22.gtf
           rm hg38.ncbiRefSeq.gtf
-      # - name: Download SRA Toolkit
-      #   run: |
-      #     # Download a specific version (3.1.1) of the SRA toolkit
-      #     wget -q https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/3.1.1/sratoolkit.3.1.1-ubuntu64.tar.gz
-      #     tar -xzf sratoolkit.3.1.1-ubuntu64.tar.gz
-      #     # Set path to include SRA toolkit binaries
-      #     echo "$PWD/sratoolkit.3.1.1-ubuntu64/bin" >> $GITHUB_PATH
-      #     # Also make it available in the current shell
-      #     export PATH="$PWD/sratoolkit.3.1.1-ubuntu64/bin:$PATH"
-      # - 
-      #   name: Configure SRA Toolkit and Fetch Test Sample
-      #   run: |
-      #     # Download a small test RNA-seq sample (SRR13008264 - mouse RNA-seq, ~100MB)
-      #     fasterq-dump --split-files SRR13008264
-      #     gzip SRR13008264_1.fastq SRR13008264_2.fastq
+      - name: Download SRA Toolkit
+        run: |
+          # Download a specific version (3.1.1) of the SRA toolkit
+          wget -q https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/3.1.1/sratoolkit.3.1.1-ubuntu64.tar.gz
+          tar -xzf sratoolkit.3.1.1-ubuntu64.tar.gz
+          # Set path to include SRA toolkit binaries
+          echo "$PWD/sratoolkit.3.1.1-ubuntu64/bin" >> $GITHUB_PATH
+          # Also make it available in the current shell
+          export PATH="$PWD/sratoolkit.3.1.1-ubuntu64/bin:$PATH"
+      - 
+        name: Configure SRA Toolkit and Fetch Test Sample
+        run: |
+          # Download a small test RNA-seq sample (SRR13008264 - mouse RNA-seq, ~100MB)
+          fasterq-dump --split-files SRR13008264
+          gzip SRR13008264_1.fastq SRR13008264_2.fastq
       - 
         name: Create Test Input JSON
         run: |
@@ -86,8 +86,8 @@ jobs:
             "star_example.samples": [
               {
                 "name": "SRR13008264",
-                "r1": "test/SRR13008264_1.fastq.gz",
-                "r2": "test/SRR13008264_2.fastq.gz"
+                "r1": "${{ github.workspace }}/SRR13008264_1.fastq.gz",
+                "r2": "${{ github.workspace }}/SRR13008264_2.fastq.gz"
               }
             ],
             "star_example.reference_genome": {
