@@ -36,23 +36,38 @@ workflow star_example {
   parameter_meta {
     samples: "List of sample objects, each containing name, r1/r2 fastq files, and condition information"
     reference_genome: "Reference genome object containing name, fasta, and gtf files"
+    sjdb_overhang: "Length of the genomic sequence around the annotated junction to be used in constructing the splice junctions database"
+    genome_sa_index_nbases: "Length (bases) of the SA pre-indexing string, typically between 10-15 (scales with genome size)"
+    cpus: "Number of CPU cores allocated for each task in the workflow"
+    memory_gb: "Memory allocated for each task in the workflow in GB"
   }
 
   input {
     Array[SampleInfo] samples
     RefGenome reference_genome
+    Int sjdb_overhang = 100
+    Int genome_sa_index_nbases = 14
+    Int cpus = 8
+    Int memory_gb = 64
   }
 
   call build_star_index { input:
       reference_fasta = reference_genome.fasta,
-      reference_gtf = reference_genome.gtf
+      reference_gtf = reference_genome.gtf,
+      sjdb_overhang = sjdb_overhang,
+      genome_sa_index_nbases = genome_sa_index_nbases,
+      memory_gb = memory_gb,
+      cpu_cores = cpus
   }
 
   scatter (sample in samples) {
     call star_align_two_pass { input:
         sample_data = sample,
         star_genome_tar = build_star_index.star_index_tar,
-        ref_genome_name = reference_genome.name
+        ref_genome_name = reference_genome.name,
+        sjdb_overhang = sjdb_overhang,
+        memory_gb = memory_gb,
+        cpu_cores = cpus
     }
   }
 
@@ -108,7 +123,7 @@ task build_star_index {
       --sjdbOverhang ~{sjdb_overhang} \
       --genomeSAindexNbases ~{genome_sa_index_nbases}
 
-    tar -czf star_index.tar.gz star_index/
+    tar -czf star_index.tar.gz star_index/*
   >>>
 
   output {
@@ -177,7 +192,7 @@ task star_align_two_pass {
       --quantMode GeneCounts \
       --quantTranscriptomeBAMcompression 5 
 
-    rm -r star_index _STARtmp
+    rm -r star_index
 
     mv Aligned.sortedByCoord.out.bam \
       "~{sample_data.name}.~{ref_genome_name}.Aligned.sortedByCoord.out.bam"
